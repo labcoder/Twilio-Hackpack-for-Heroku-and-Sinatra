@@ -1,7 +1,13 @@
 require 'sinatra'
 require 'twilio-ruby'
 
-get '/' do
+# A hack around multiple routes in Sinatra
+def get_or_post(path, opts={}, &block)
+  get(path, opts, &block)
+  post(path, opts, &block)
+end
+
+get_or_post '/' do
   @title = "Home"
   erb :home
 end

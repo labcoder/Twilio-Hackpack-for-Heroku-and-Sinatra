@@ -1,6 +1,12 @@
 =begin
-  This script will configure Twilio for your runtime environment.
-  Just run this file: ruby configure.rb and set up your Twilio credentials.
+  Hackpack Configure
+  A script to configure your TwiML apps and Twilio phone numbers to use in
+  your hackpack's Heroku app.
+  
+  USAGE:
+  
+  Just run this file:
+    ruby configure.rb
 =end
 
 puts "Enter your twilio SID:"
