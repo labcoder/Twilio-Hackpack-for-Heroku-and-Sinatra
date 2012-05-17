@@ -16,9 +16,8 @@ end
 # Voice Request URL
 get_or_post '/voice/?' do
   response = Twilio::TwiML::Response.new do |r|
-    r.Say 'Congratulations! You\'ve successfully deployed' \
-          'the Twilio HackPack for Heroku and Sinatra!'
-          ,:voice => 'woman'
+    r.Say 'Congratulations! You\'ve successfully deployed ' \
+          'the Twilio HackPack for Heroku and Sinatra!', :voice => 'woman'
   end
   response.text
 end
@@ -26,7 +25,7 @@ end
 # SMS Request URL
 get_or_post '/sms/?' do
   response = Twilio::TwiML::Response.new do |r|
-    r.Sms 'Congratulations! You\'ve successully deployed' \
+    r.Sms 'Congratulations! You\'ve successfully deployed ' \
           'the Twilio HackPack for Heroku and Sinatra!'
   end
   response.text

@@ -3,25 +3,14 @@
   A script to configure your TwiML apps and Twilio phone numbers to use in
   your hackpack's Heroku app.
 
-  USAGE:
-
-  See what this thing can do:
-    ruby configure.rb -h | --help
-
-  Let me figure out what needs to be done:
-    ruby configure.rb
-
-  Set up an app with a new app ID and number:
-    ruby configure.rb -n | --new
-
-  Set up app with specific App Sid:
-    ruby configure.rb -a APxxxxxxxxxxxxxx | --app APxxxxxxxxxxxxxx
-
-  Set up app with Specific Twilio Number:
-    ruby configure.rb -c +15556667777 | --caller +15556667777
-
-  Set up app with custom domain:
-    ruby configure.rb -d example.com | --domain example.com
+  USAGE: ruby configure.rb [options]
+  where [options] are:
+           --new, -n:   We need to set up a new AppSID and Number
+       --app, -a <s>:   Use this Twilio App SID
+    --caller, -c <s>:   Use this Twilio Number
+    --domain, -d <s>:   Use this custom Domain
+       --version, -v:   Print version and exit
+          --help, -h:   Show this message
 =end
 
 require 'trollop'
