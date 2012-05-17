@@ -7,3 +7,4 @@ InstalledFiles
 lib/bundler/man
 pkg
 rdoc
+.DS_STORE
