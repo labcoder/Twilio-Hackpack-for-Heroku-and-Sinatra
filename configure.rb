@@ -5,14 +5,17 @@
 
   USAGE: ruby configure.rb [options]
   where [options] are:
-           --new, -n:   We need to set up a new AppSID and Number
-       --app, -a <s>:   Use this Twilio App SID
-    --caller, -c <s>:   Use this Twilio Number
-    --domain, -d <s>:   Use this custom Domain
-     --token, -t <s>:   Use this Twilio Auth Token
-       --sid, -s <s>:   Use this Twilio Account SID
-       --version, -v:   Print version and exit
-          --help, -h:   Show this message
+         --new, -n:   We need to set up a new AppSID and Number
+     --app, -a <s>:   Use this Twilio App SID
+  --caller, -c <s>:   Use this Twilio Number
+  --domain, -d <s>:   Use this custom Domain
+   --token, -t <s>:   Use this Twilio Auth Token
+     --sid, -s <s>:   Use this Twilio Account SID
+   --voice, -v <s>:   Use this url for voice (default: /voice)
+     --sms, -m <s>:   Use this url for sms (default: /sms)
+     --version, -e:   Print version and exit
+        --help, -h:   Show this message
+
 =end
 
 require 'trollop'
@@ -30,6 +33,8 @@ opts = Trollop::options do
   opt :domain, "Use this custom Domain", :type => :string
   opt :token, "Use this Twilio Auth Token", :type => :string
   opt :sid, "Use this Twilio Account SID", :type => :string
+  opt :voice, "Use this url for voice", :type => :string, :default => '/voice'
+  opt :sms, "Use this url for sms", :type => :string, :default => '/sms'
 end
 
 # For error messages-----------------------------------------------------------
@@ -98,8 +103,8 @@ rescue
 end
 @log.debug("Finding Heroku in remote in git configuration...")
 begin
-  posBegin = git_config.index "heroku.com"
-  posEnd = git_config.index ".git", posBegin+1
+  posBegin = git_config.index("heroku.com")
+  posEnd = git_config.index(".git", posBegin+1)
   subdomain = git_config[posBegin+11, posEnd-posBegin-11]
 rescue
   @log.error("Could not find Heroku remote in your .git config. " \
@@ -109,15 +114,29 @@ end
 @log.debug("Heroku remote found: #{subdomain}")
 host = "http://#{subdomain}.herokuapp.com"
 @log.debug("Returning full host: #{host}")
-#p opts
 
-=begin
-puts "Enter your twilio SID:"
-TWILIO_ACCOUNT_SID = STDIN.gets.chomp()
-
-puts "Enter your twilio auth token:"
-TWILIO_AUTH_TOKEN = STDIN.gets.chomp()
-
-ENV['TWILIO_ACCOUNT_SID'] = TWILIO_ACCOUNT_SID
-ENV['TWILIO_AUTH_TOKEN'] = TWILIO_AUTH_TOKEN
-=end
+# Configure TwiML App----------------------------------------------------------
+voice_url = host+opts[:voice]
+sms_url = host+opts[:sms]
+if opts[:app_given]
+  @log.info("Setting up request urls for app sid: #{opts[:app]}")
+  begin
+    @client.account.applications.get(opts[:app]).update(
+                    :voice_url => voice_url, :sms_url => sms_url,
+                    :friendly_name => "HackPack for Heroku and Sinatra")
+  rescue => err
+    if err.to_s["HTTP ERROR 404"]
+      @log.error("This app sid was not found: #{opts[:app]}")
+      exit
+    else
+      @log.error("An error occured when setting the request urls: #{err}")
+      exit
+    end
+  end
+else
+  begin
+    
+  rescue
+    
+  end
+end
