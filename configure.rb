@@ -56,7 +56,7 @@ ENV['TWILIO_ACCOUNT_SID'] = opts[:sid] if opts[:sid_given]
 if ENV['TWILIO_ACCOUNT_SID'].nil? || ENV['TWILIO_ACCOUNT_SID'].empty?
   count = 0
   while count < 4
-    puts "Please enter your Twilio Account SID:"
+    puts("Please enter your Twilio Account SID:")
     x = STDIN.gets.chomp()
     if !x.empty?
       ENV['TWILIO_ACCOUNT_SID'] = x
@@ -74,7 +74,7 @@ ENV['TWILIO_AUTH_TOKEN'] = opts[:token] if opts[:token_given]
 if ENV['TWILIO_AUTH_TOKEN'].nil? || ENV['TWILIO_AUTH_TOKEN'].empty?
   count = 0
   while count < 4
-    puts "Please enter your Twilio AUTH Token:"
+    puts("Please enter your Twilio AUTH Token:")
     x = STDIN.gets.chomp()
     if !x.empty?
       ENV['TWILIO_AUTH_TOKEN'] = x
@@ -121,9 +121,11 @@ sms_url = host+opts[:sms]
 if opts[:app_given]
   @log.info("Setting up request urls for app sid: #{opts[:app]}")
   begin
-    @client.account.applications.get(opts[:app]).update(
+    @app = @client.account.applications.get(opts[:app])
+    @app.update(
                     :voice_url => voice_url, :sms_url => sms_url,
                     :friendly_name => "HackPack for Heroku and Sinatra")
+    @log.debug("Updated app sid: #{opts[:app]}")
   rescue => err
     if err.to_s["HTTP ERROR 404"]
       @log.error("This app sid was not found: #{opts[:app]}")
@@ -134,9 +136,30 @@ if opts[:app_given]
     end
   end
 else
-  begin
-    
-  rescue
-    
+  @log.debug("Asking user to create new app sid...")
+  count = 0
+  while count < 4 && !@app
+    count+=1
+    puts("Your didn't provide an app sid. Want to create a TwiML app? [y/n]")
+    choice = STDIN.gets.chomp()
+    choice.strip!
+    if choice == 'y'
+      begin
+        @log.info("Creating new TwiML app...")
+        @app = @client.account.applications.create(
+                    :voice_url => voice_url, :sms_url => sms_url,
+                    :friendly_name => "HackPack for Heroku and Sinatra2")
+        puts @app
+        break
+      rescue => err
+        @log.error("Twilio app could not be creted :(")
+        exit
+      end
+    elsif choice == 'n' || count == 4
+      raiseError("app sid")
+    else
+      @log.warn("Please enter either 'y' or 'n'")
+    end
   end
+  @log.info("Application created: #{@app.sid}")
 end
