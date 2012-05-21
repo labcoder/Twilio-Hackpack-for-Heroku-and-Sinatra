@@ -10,7 +10,9 @@ Work in progress... in the meantime, check out the [Twilio Hackpack for Python](
 + Finish Readme >.<
 
 ##Already Done:
++ Set up Heroku environment/config variables
 + Use existing or create a new Twilio phone number
++ Add option to replace the default title
 + Link or create a new TwiML app
 + Configure Heroku
 + Set up web

@@ -25,7 +25,7 @@ require 'twilio-ruby'
 
 # Command line parsing stuff---------------------------------------------------
 opts = Trollop::options do
-  version "Twilio HackPack for Heroku and Sinatra v0.1 (c) 2012 Oscar Sanchez"
+  version "Twilio HackPack for Heroku and Sinatra v0.8 (c) 2012 Oscar Sanchez"
   banner "USAGE: ruby configure.rb [options]\n" \
         "where [options] are:"
   opt :new, "We need to set up a new AppSID and Number"
@@ -210,3 +210,11 @@ else
   end
 end
 @log.debug("Returning phone number: #{@number.friendly_name}")
+
+# Configure environment variables for Heroku-----------------------------------
+exec("heroku config:add TWILIO_ACCOUNT_SID=#{ENV['TWILIO_ACCOUNT_SID']} " \
+      "TWILIO_AUTH_TOKEN=#{ENV['TWILIO_AUTH_TOKEN']} " \
+      "TWILIO_CALLER_ID=#{@number.phone_number} " \
+      "TWILIO_APP_SID=#{@app.sid}")
+      
+# Everything should be ok now...
