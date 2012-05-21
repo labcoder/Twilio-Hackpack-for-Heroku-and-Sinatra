@@ -212,9 +212,14 @@ end
 @log.debug("Returning phone number: #{@number.friendly_name}")
 
 # Configure environment variables for Heroku-----------------------------------
-exec("heroku config:add TWILIO_ACCOUNT_SID=#{ENV['TWILIO_ACCOUNT_SID']} " \
+system("heroku config:add TWILIO_ACCOUNT_SID=#{ENV['TWILIO_ACCOUNT_SID']} " \
       "TWILIO_AUTH_TOKEN=#{ENV['TWILIO_AUTH_TOKEN']} " \
       "TWILIO_CALLER_ID=#{@number.phone_number} " \
       "TWILIO_APP_SID=#{@app.sid}")
       
 # Everything should be ok now...
+@log.info("---------------------------------\n" \
+     "Congratulations! Your Twilio app should be set up properly now.\n" \
+     "Try calling or texting: '#{@number.phone_number}' or go to:\n" \
+     "'#{host}'\n" \
+     "Most importantly, though, hack away on app.rb!")
