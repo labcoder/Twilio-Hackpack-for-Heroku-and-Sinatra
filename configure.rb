@@ -5,17 +5,18 @@
 
   USAGE: ruby configure.rb [options]
   where [options] are:
-         --new, -n:   We need to set up a new AppSID and Number
-     --app, -a <s>:   Use this Twilio App SID
-  --caller, -c <s>:   Use this Twilio Number
-  --domain, -d <s>:   Use this custom Domain
-   --token, -t <s>:   Use this Twilio Auth Token
-     --sid, -s <s>:   Use this Twilio Account SID
-   --voice, -v <s>:   Use this url for voice (default: /voice)
-     --sms, -m <s>:   Use this url for sms (default: /sms)
-     --version, -e:   Print version and exit
-        --help, -h:   Show this message
-
+           --new, -n:   We need to set up a new AppSID and Number
+       --app, -a <s>:   Use this Twilio App SID
+    --caller, -c <s>:   Use this Twilio Number
+    --domain, -d <s>:   Use this custom Domain
+     --token, -t <s>:   Use this Twilio Auth Token
+       --sid, -s <s>:   Use this Twilio Account SID
+     --voice, -v <s>:   Use this url for voice (default: /voice)
+       --sms, -m <s>:   Use this url for sms (default: /sms)
+  --friendly, -f <s>:   Use this friendly name
+                        (default: HackPack for Heroku and Sinatra)
+       --version, -e:   Print version and exit
+          --help, -h:   Show this message
 =end
 
 require 'trollop'
@@ -35,6 +36,8 @@ opts = Trollop::options do
   opt :sid, "Use this Twilio Account SID", :type => :string
   opt :voice, "Use this url for voice", :type => :string, :default => '/voice'
   opt :sms, "Use this url for sms", :type => :string, :default => '/sms'
+  opt :friendly, "Use this friendly name", :type => :string,
+              :default => "HackPack for Heroku and Sinatra"
 end
 
 # For error messages-----------------------------------------------------------
@@ -124,7 +127,7 @@ if opts[:app_given]
     @app = @client.account.applications.get(opts[:app])
     @app.update(
                     :voice_url => voice_url, :sms_url => sms_url,
-                    :friendly_name => "HackPack for Heroku and Sinatra")
+                    :friendly_name => opts[:friendly])
     @log.debug("Updated app sid: #{opts[:app]}")
   rescue => err
     if err.to_s["HTTP ERROR 404"]
@@ -140,7 +143,7 @@ else
   count = 0
   while count < 4 && !@app
     count+=1
-    puts("Your didn't provide an app sid. Want to create a TwiML app? [y/n]")
+    puts("You didn't provide an app sid. Want to create a TwiML app? [y/n]")
     choice = STDIN.gets.chomp()
     choice.strip!
     if choice == 'y'
@@ -148,8 +151,7 @@ else
         @log.info("Creating new TwiML app...")
         @app = @client.account.applications.create(
                     :voice_url => voice_url, :sms_url => sms_url,
-                    :friendly_name => "HackPack for Heroku and Sinatra2")
-        puts @app
+                    :friendly_name => opts[:friendly])
         break
       rescue => err
         @log.error("Twilio app could not be creted :(")
@@ -163,3 +165,48 @@ else
   end
   @log.info("Application created: #{@app.sid}")
 end
+
+# Configure phone number to use with this app----------------------------------
+if opts[:caller_given]
+  @log.debug("Retrieving phone number: #{opts[:caller]}")
+  # Is there a better way of getting a number object?
+  @number = @client.account.incoming_phone_numbers.list({
+          :phone_number => opts[:caller]})[0]
+  if @number
+    @number.update(:friendly_name => opts[:friendly],
+                   :voice_application_sid => @app.sid,
+                   :sms_application_sid => @app.sid)
+  else
+    @log.error("Sorry, this phone number does not exist in your" \
+                "Twilio account: #{opts[:caller]}")
+    exit
+  end
+else
+  @log.debug("Asking user to purchase phone number...")
+  count = 0
+  while count < 4
+    count+=1
+    puts("You didn't provide a phone number. Purchase a new one? [y/n]\n"\
+         "Your account will be charged $1")
+    choice = STDIN.gets.chomp()
+    choice.strip!
+    if choice == 'y'
+      @log.debug("Purchasing new number...")
+      begin
+        @number = @client.account.incoming_phone_numbers.create(
+                  :area_code => "305", :voice_application_sid => @app.sid,
+                  :sms_application_sid => @app.sid,
+                  :friendly_name => opts[:friendly])
+        break
+      rescue => err
+        @log.error("Something went wrong with the number: #{err}")
+        exit
+      end
+    elsif choice == 'n' || count == 4
+      raiseError("phone number")
+    else
+      @log.warn("Please enter either 'y' or 'n'")
+    end
+  end
+end
+@log.debug("Returning phone number: #{@number.friendly_name}")
