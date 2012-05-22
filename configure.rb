@@ -141,10 +141,8 @@ if !ENV['TWILIO_APP_SID']
         exit
       end
     end
-    puts "---" + @app.sid
     ENV['TWILIO_APP_SID'] = @app.sid
     system("export TWILIO_APP_SID="+ENV['TWILIO_APP_SID'])
-    puts ENV['TWILIO_APP_SID']+"---"
   else
     @log.debug("Asking user to create new app sid...")
     count = 0
