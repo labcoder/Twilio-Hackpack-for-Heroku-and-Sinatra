@@ -4,12 +4,12 @@
 Work in progress... in the meantime, check out the [Twilio Hackpack for Python](https://github.com/RobSpectre/Twilio-Hackpack-for-Heroku-and-Flask#twilio-hackpack-for-heroku-and-flask)!
 
 ##To-Do:
-+ Set up the twilio client
-+ Test
-+ Layout
++ Tests...
++ Layout...
 + Finish Readme >.<
 
 ##Already Done:
++ Set up Twilio client
 + Set up Heroku environment/config variables
 + Use existing or create a new Twilio phone number
 + Add option to replace the default title

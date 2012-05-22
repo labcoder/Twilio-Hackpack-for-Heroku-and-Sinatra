@@ -30,3 +30,16 @@ get_or_post '/sms/?' do
   end
   response.text
 end
+
+# Twilio Client URL
+get_or_post '/client/?' do
+  if !(TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_APP_SID)
+    return "Please run configure.rb before trying to do this!"
+  end
+  @title = "Twilio Client"
+  capability = Twilio::Util::Capability.new(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
+  capability.allow_client_outgoing(TWILIO_APP_SID)
+  capability.allow_client_incoming('twilioRubyHackpack')
+  @token = capability.generate
+  erb :client
+end

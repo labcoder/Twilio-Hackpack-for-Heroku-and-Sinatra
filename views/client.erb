@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<title><%= @title %></title>
+	<script type="text/javascript"
+		src="//static.twilio.com/libs/twiliojs/1.0/twilio.min.js"></script>
+	<script type="text/javascript"
+		src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js">
+	</script>
+	<link href="//static0.twilio.com/packages/quickstart/client.css"
+		type="text/css" rel="stylesheet" />
+	<script type="text/javascript">
+  
+	/* Create the Client with a Capability Token */
+	Twilio.Device.setup("<%= @token %>");
+ 
+	/* Let us know when the client is ready. */
+	Twilio.Device.ready(function (device) {
+		$("#log").text("Ready");
+	});
+ 
+	/* Report any errors on the screen */
+	Twilio.Device.error(function (error) {
+		$("#log").text("Error: " + error.message);
+	});
+ 
+	Twilio.Device.connect(function (conn) {
+		$("#log").text("Successfully established call");
+	});
+	
+	Twilio.Device.disconnect(function (conn) {
+		$("#log").text("Call ended");
+	});
+	Twilio.Device.incoming(function (conn) {
+		$("#log").text("Incoming connection from " + conn.parameters.From);
+		// accept the incoming connection and start two-way audio
+		conn.accept();
+	});
+
+	/* Connect to Twilio when we call this function. */
+	function call() {
+		Twilio.Device.connect();
+	}
+	function hangup() {
+		Twilio.Device.disconnectAll();
+	}
+    </script>
+	</head>
+	<body>
+ 
+		<button class="call" onclick="call();">
+			Call
+		</button>
+		<button class="hangup" onclick="hangup();">
+			Hangup
+		</button>
+  
+		<div id="log">Loading pigeons...</div>
+	</body>
+</html>

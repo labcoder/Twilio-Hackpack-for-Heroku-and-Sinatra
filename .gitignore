@@ -7,4 +7,5 @@ InstalledFiles
 lib/bundler/man
 pkg
 rdoc
+local_settings.rb
 .DS_STORE

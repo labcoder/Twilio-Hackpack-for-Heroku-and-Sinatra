@@ -68,6 +68,7 @@ if ENV['TWILIO_ACCOUNT_SID'].nil? || ENV['TWILIO_ACCOUNT_SID'].empty?
     count+=1
   end
 end
+system("export TWILIO_ACCOUNT_SID="+ENV['TWILIO_ACCOUNT_SID'])
 raiseError("Twilio Account SID") if ENV['TWILIO_ACCOUNT_SID'].nil? \
                                  || ENV['TWILIO_ACCOUNT_SID'].empty?
 @log.info("Account SID found and set")
@@ -86,6 +87,7 @@ if ENV['TWILIO_AUTH_TOKEN'].nil? || ENV['TWILIO_AUTH_TOKEN'].empty?
     count+=1
   end
 end
+system("export TWILIO_AUTH_TOKEN="+ENV['TWILIO_AUTH_TOKEN'])
 raiseError("Twilio Account AUTH Token") if ENV['TWILIO_AUTH_TOKEN'].nil? \
                                  || ENV['TWILIO_AUTH_TOKEN'].empty?
 @log.info("Account AUTH found and set")
@@ -121,95 +123,115 @@ host = "http://#{subdomain}.herokuapp.com"
 # Configure TwiML App----------------------------------------------------------
 voice_url = host+opts[:voice]
 sms_url = host+opts[:sms]
-if opts[:app_given]
-  @log.info("Setting up request urls for app sid: #{opts[:app]}")
-  begin
-    @app = @client.account.applications.get(opts[:app])
-    @app.update(
-                    :voice_url => voice_url, :sms_url => sms_url,
-                    :friendly_name => opts[:friendly])
-    @log.debug("Updated app sid: #{opts[:app]}")
-  rescue => err
-    if err.to_s["HTTP ERROR 404"]
-      @log.error("This app sid was not found: #{opts[:app]}")
-      exit
-    else
-      @log.error("An error occured when setting the request urls: #{err}")
-      exit
-    end
-  end
-else
-  @log.debug("Asking user to create new app sid...")
-  count = 0
-  while count < 4 && !@app
-    count+=1
-    puts("You didn't provide an app sid. Want to create a TwiML app? [y/n]")
-    choice = STDIN.gets.chomp()
-    choice.strip!
-    if choice == 'y'
-      begin
-        @log.info("Creating new TwiML app...")
-        @app = @client.account.applications.create(
-                    :voice_url => voice_url, :sms_url => sms_url,
-                    :friendly_name => opts[:friendly])
-        break
-      rescue => err
-        @log.error("Twilio app could not be creted :(")
+if !ENV['TWILIO_APP_SID']
+  if opts[:app_given]
+    @log.info("Setting up request urls for app sid: #{opts[:app]}")
+    begin
+      @app = @client.account.applications.get(opts[:app])
+      @app.update(
+                      :voice_url => voice_url, :sms_url => sms_url,
+                      :friendly_name => opts[:friendly])
+      @log.debug("Updated app sid: #{opts[:app]}")
+    rescue => err
+      if err.to_s["HTTP ERROR 404"]
+        @log.error("This app sid was not found: #{opts[:app]}")
+        exit
+      else
+        @log.error("An error occured when setting the request urls: #{err}")
         exit
       end
-    elsif choice == 'n' || count == 4
-      raiseError("app sid")
-    else
-      @log.warn("Please enter either 'y' or 'n'")
     end
-  end
-  @log.info("Application created: #{@app.sid}")
-end
-
-# Configure phone number to use with this app----------------------------------
-if opts[:caller_given]
-  @log.debug("Retrieving phone number: #{opts[:caller]}")
-  # Is there a better way of getting a number object?
-  @number = @client.account.incoming_phone_numbers.list({
-          :phone_number => opts[:caller]})[0]
-  if @number
-    @number.update(:friendly_name => opts[:friendly],
-                   :voice_application_sid => @app.sid,
-                   :sms_application_sid => @app.sid)
+    puts "---" + @app.sid
+    ENV['TWILIO_APP_SID'] = @app.sid
+    system("export TWILIO_APP_SID="+ENV['TWILIO_APP_SID'])
+    puts ENV['TWILIO_APP_SID']+"---"
   else
-    @log.error("Sorry, this phone number does not exist in your" \
-                "Twilio account: #{opts[:caller]}")
-    exit
-  end
-else
-  @log.debug("Asking user to purchase phone number...")
-  count = 0
-  while count < 4
-    count+=1
-    puts("You didn't provide a phone number. Purchase a new one? [y/n]\n"\
-         "Your account will be charged $1")
-    choice = STDIN.gets.chomp()
-    choice.strip!
-    if choice == 'y'
-      @log.debug("Purchasing new number...")
-      begin
-        @number = @client.account.incoming_phone_numbers.create(
-                  :area_code => "305", :voice_application_sid => @app.sid,
-                  :sms_application_sid => @app.sid,
-                  :friendly_name => opts[:friendly])
-        break
-      rescue => err
-        @log.error("Something went wrong with the number: #{err}")
-        exit
+    @log.debug("Asking user to create new app sid...")
+    count = 0
+    while count < 4 && !@app
+      count+=1
+      puts("You didn't provide an app sid. Want to create a TwiML app? [y/n]")
+      choice = STDIN.gets.chomp()
+      choice.strip!
+      if choice == 'y'
+        begin
+          @log.info("Creating new TwiML app...")
+          @app = @client.account.applications.create(
+                      :voice_url => voice_url, :sms_url => sms_url,
+                      :friendly_name => opts[:friendly])
+          break
+        rescue => err
+          @log.error("Twilio app could not be creted :(")
+          exit
+        end
+      elsif choice == 'n' || count == 4
+        raiseError("app sid")
+      else
+        @log.warn("Please enter either 'y' or 'n'")
       end
-    elsif choice == 'n' || count == 4
-      raiseError("phone number")
-    else
-      @log.warn("Please enter either 'y' or 'n'")
     end
+    ENV['TWILIO_APP_SID'] = @app.sid
+    system("export TWILIO_APP_SID="+ENV['TWILIO_APP_SID'])
+    @log.info("Application created: #{@app.sid}")
+  end
+end
+# Configure phone number to use with this app----------------------------------
+if !ENV['TWILIO_CALLER_ID']
+  if opts[:caller_given]
+    @log.debug("Retrieving phone number: #{opts[:caller]}")
+    # Is there a better way of getting a number object?
+    @number = @client.account.incoming_phone_numbers.list({
+            :phone_number => opts[:caller]})[0]
+    if @number
+      @number.update(:friendly_name => opts[:friendly],
+                     :voice_application_sid => @app.sid,
+                     :sms_application_sid => @app.sid)
+    else
+      @log.error("Sorry, this phone number does not exist in your" \
+                  "Twilio account: #{opts[:caller]}")
+      exit
+    end
+    ENV['TWILIO_CALLER_ID'] = @number.phone_number
+    system("export TWILIO_CALLER_ID="+ENV['TWILIO_CALLER_ID'])
+  else
+    @log.debug("Asking user to purchase phone number...")
+    count = 0
+    while count < 4
+      count+=1
+      puts("You didn't provide a phone number. Purchase a new one? [y/n]\n"\
+           "Your account will be charged $1")
+      choice = STDIN.gets.chomp()
+      choice.strip!
+      if choice == 'y'
+        @log.debug("Purchasing new number...")
+        begin
+          @number = @client.account.incoming_phone_numbers.create(
+                    :area_code => "305", :voice_application_sid => @app.sid,
+                    :sms_application_sid => @app.sid,
+                    :friendly_name => opts[:friendly])
+          break
+        rescue => err
+          @log.error("Something went wrong with the number: #{err}")
+          exit
+        end
+      elsif choice == 'n' || count == 4
+        raiseError("phone number")
+      else
+        @log.warn("Please enter either 'y' or 'n'")
+      end
+    end
+    ENV['TWILIO_CALLER_ID'] = @number.phone_number
+    system("export TWILIO_CALLER_ID="+ENV['TWILIO_CALLER_ID'])
   end
 end
 @log.debug("Returning phone number: #{@number.friendly_name}")
+
+# Configure environment variables for local------------------------------------
+cmd = "echo \"TWILIO_ACCOUNT_SID=\'#{ENV['TWILIO_ACCOUNT_SID']}\'\n" \
+      "TWILIO_AUTH_TOKEN=\'#{ENV['TWILIO_AUTH_TOKEN']}\'\n" \
+      "TWILIO_APP_SID=\'#{ENV['TWILIO_APP_SID']}\'\n" \
+      "TWILIO_CALLER_ID=\'#{ENV['TWILIO_CALLER_ID']}\'\" > local_settings.rb"
+system(cmd)
 
 # Configure environment variables for Heroku-----------------------------------
 system("heroku config:add TWILIO_ACCOUNT_SID=#{ENV['TWILIO_ACCOUNT_SID']} " \
