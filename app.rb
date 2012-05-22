@@ -1,6 +1,8 @@
 require 'sinatra'
 require 'twilio-ruby'
-require './local_settings'
+# Uncomment for local testing
+#require './local_settings'
+
 # A hack around multiple routes in Sinatra
 def get_or_post(path, opts={}, &block)
   get(path, opts, &block)
@@ -33,6 +35,10 @@ end
 
 # Twilio Client URL
 get_or_post '/client/?' do
+  TWILIO_ACCOUNT_SID = ENV['TWILIO_ACCOUNT_SID'] || TWILIO_ACCOUNT_SID
+  TWILIO_AUTH_TOKEN = ENV['TWILIO_AUTH_TOKEN'] || TWILIO_AUTH_TOKEN
+  TWILIO_APP_SID = ENV['TWILIO_APP_SID'] || TWILIO_APP_SID
+  
   if !(TWILIO_ACCOUNT_SID && TWILIO_AUTH_TOKEN && TWILIO_APP_SID)
     return "Please run configure.rb before trying to do this!"
   end
