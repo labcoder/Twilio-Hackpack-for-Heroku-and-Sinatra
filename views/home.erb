@@ -2,11 +2,56 @@
 <html>
 	<head>
 		<title><%= @title %> | Twilio Ruby Hackpack</title>
+		<link rel="shortcut icon" href="/static/images/favicon.ico" />
+		<link rel="apple-touch-icon"
+			href="http://static1.twilio.com/packages/favicons/img/Twilio_57.png" />
+		<link rel="apple-touch-icon" sizes="72x72"
+			href="http://static1.twilio.com/packages/favicons/img/Twilio_72.png" />
+		<link rel="apple-touch-icon" sizes="114x114"
+			href="http://static0.twilio.com/packages/favicons/img/Twilio_114.png" />
+		<link rel="stylesheet" type="text/css"
+			href="http://static1.twilio.com/packages/base.css"/>
+		<link rel="stylesheet" type="text/css"
+			href="http://static0.twilio.com/packages/buttons.css" />
 		<link href="/style.css" rel="stylesheet">
 	</head>
 	<body>
-		<center><h1>Hello!</h1></center>
-		<p>Things seem to be in order, here. Still some work to do...</p>
+		<div id="container">
+			<header>
+				<div id="header">
+					<h1 class="section-heading">Success!</h1>
+				</div>
+			</header>
+			<section>
+				<div id="content">
+					<h2 class="section-heading">You deployed Twilio Hackpack
+						for Heroku and Sinatra.</h2>
+					<p class="blurb">Here are some important links:</p>
+					<a href="https://www.twilio.com/user/account/apps"
+					   class="button">Configure Twilio</a>
+					<dl id="url_list">
+						<dt>Voice Request URL</dt>
+						<dd><a href="/voice">
+							Click Here</a></dd>
+						<dt>SMS Request URL</dt>
+						<dd><a href="/sms">
+							Click Here</a></dd>
+						<dt>Client URL</dt>
+						<dd><a href="/client">
+							Click Here</a></dd>
+				   </dl>
+				</div>
+			</section>
+			<footer>
+				<p class="footer">
+					Source on <a
+						href="https://github.com/labcoder/Twilio-Hackpack-for-Heroku-and-Sinatra">Github</a>.
+					Released under <a
+						href="http://www.opensource.org/licenses/mit-license.html">
+						MIT license</a>.
+				</p>
+			</footer>
+		</div>
 	</body>
 </html>
 

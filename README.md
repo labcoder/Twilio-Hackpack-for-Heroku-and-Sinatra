@@ -5,10 +5,10 @@ Work in progress... in the meantime, check out the [Twilio Hackpack for Python](
 
 ##To-Do:
 + Tests...
-+ Layout...
 + Finish Readme >.<
 
 ##Already Done:
++ Layout done... can improve, though.
 + Set up Twilio client
 + Set up Heroku environment/config variables
 + Use existing or create a new Twilio phone number
