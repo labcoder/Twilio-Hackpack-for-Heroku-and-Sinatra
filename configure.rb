@@ -225,18 +225,17 @@ end
 @log.debug("Returning phone number: #{@number.friendly_name}")
 
 # Configure environment variables for local------------------------------------
-cmd = "echo \"TWILIO_ACCOUNT_SID=\'#{ENV['TWILIO_ACCOUNT_SID']}\'\n" \
-      "TWILIO_AUTH_TOKEN=\'#{ENV['TWILIO_AUTH_TOKEN']}\'\n" \
-      "TWILIO_APP_SID=\'#{ENV['TWILIO_APP_SID']}\'\n" \
-      "TWILIO_CALLER_ID=\'#{ENV['TWILIO_CALLER_ID']}\'\" > local_settings.rb"
-system(cmd)
+puts "Please copy paste these into your shell to test locally:\n" +
+      "export TWILIO_ACCOUNT_SID=#{ENV['TWILIO_ACCOUNT_SID']}\n" +
+      "export TWILIO_AUTH_TOKEN=#{ENV['TWILIO_AUTH_TOKEN']}\n" +
+      "export TWILIO_CALLER_ID=#{@number.phone_number}\n"
 
 # Configure environment variables for Heroku-----------------------------------
 system("heroku config:add TWILIO_ACCOUNT_SID=#{ENV['TWILIO_ACCOUNT_SID']} " \
       "TWILIO_AUTH_TOKEN=#{ENV['TWILIO_AUTH_TOKEN']} " \
       "TWILIO_CALLER_ID=#{@number.phone_number} " \
       "TWILIO_APP_SID=#{@app.sid}")
-      
+
 # Everything should be ok now...
 @log.info("---------------------------------\n" \
      "Congratulations! Your Twilio app should be set up properly now.\n" \
