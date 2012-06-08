@@ -1,7 +1,5 @@
 require 'sinatra'
 require 'twilio-ruby'
-# Uncomment for local testing
-#require './local_settings'
 
 # A hack around multiple routes in Sinatra
 def get_or_post(path, opts={}, &block)

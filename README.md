@@ -64,7 +64,7 @@ Other than that, the hackpack itself can do anything from buying you a new Twili
 1) At the beginning, run:
 <pre>ruby configure.rb --sid ACXXXXXXX --token YYYYYYYY</pre>
 
-2) For local development, copy and paste the commands the configure script provides, <strong>or</strong> uncomment line 4 in app.rb:
+2) For local development, copy and paste the commands the configure script provides
 <pre>
 export TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxx
 export TWILIO_AUTH_TOKEN=yyyyyyyyyyyyyyyyy
