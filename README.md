@@ -1,4 +1,4 @@
-#Twilio HackPack for Heroku and Sinatras
+#Twilio HackPack for Heroku and Sinatra
 An easy-to-use repo to kickstart your Twilio app using Sinatra and deploy onto Heroku.
 This is a Ruby port of Rob Spectre's [Twilio Hackpack for Python](https://github.com/RobSpectre/Twilio-Hackpack-for-Heroku-and-Flask#twilio-hackpack-for-heroku-and-flask), so check that out if you don't like Ruby (what's wrong with you!?)
 
